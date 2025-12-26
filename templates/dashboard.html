@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Restaurant Ordering{% endblock %}
+
+{% block content %}
+<style>
+    /* ========================================= */
+    /* 1. Base Table Styling (Light Mode Default)*/
+    /* ========================================= */
+    .table-custom {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        /* Space between rows */
+    }
+
+    /* Green Header for Brand Identity (Always Green) */
+    .table-custom thead th {
+        background-color: #3A5A40;
+        /* Brand Dark Green */
+        color: #FFFFFF;
+        padding: 15px;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table-custom thead th:first-child {
+        border-top-left-radius: 10px;
+    }
+
+    .table-custom thead th:last-child {
+        border-top-right-radius: 10px;
+    }
+
+    /* Row Styling */
+    .table-custom tbody tr {
+        background-color: #FFFFFF;
+        /* White by default */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s, background-color 0.3s;
+    }
+
+    .table-custom td {
+        padding: 15px;
+        vertical-align: middle;
+        border: none;
+        color: #333333;
+        /* Dark Text */
+    }
+
+    /* Small text (Date/Time) */
+    .table-custom .text-muted {
+        color: #6c757d !important;
+    }
+
+    /* --- Status Badges Colors --- */
+    .badge-status-new {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .badge-status-preparing {
+        background-color: #f59e0b;
+        color: white;
+    }
+
+    .badge-status-ready {
+        background-color: #10b981;
+        color: white;
+    }
+
+    .badge-status-delivered {
+        background-color: #374151;
+        color: white;
+    }
+
+    /* ========================================= */
+    /* 2. DARK MODE ADAPTATION (Overrides)       */
+    /* ========================================= */
+    [data-theme="dark"] .table-custom tbody tr {
+        background-color: #1F2937 !important;
+        /* Dark Grey Card BG */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="dark"] .table-custom td {
+        color: #F3F4F6 !important;
+        /* Bright White Text */
+    }
+
+    [data-theme="dark"] .table-custom .text-muted {
+        color: #9CA3AF !important;
+        /* Lighter Grey (Visible on dark) */
+    }
+
+    /* Row Hover Effects */
+    .table-custom tbody tr:hover {
+        transform: scale(1.01);
+        z-index: 10;
+    }
+
+    [data-theme="dark"] .table-custom tbody tr:hover {
+        background-color: #374151 !important;
+        /* Lighter Grey on Hover */
+    }
+
+    /* ========================================= */
+    /* CRITICAL FIX: DARK MODE TABLE ROWS        */
+    /* ========================================= */
+
+    /* 1. Force Dark Background on Rows & Cells */
+    [data-theme="dark"] .table-custom tbody tr,
+    [data-theme="dark"] .table-custom tbody td {
+        background-color: #1F2937 !important;
+        /* Dark Grey Card Color */
+        color: #F3F4F6 !important;
+        /* Bright White Text */
+        border-color: #374151 !important;
+        /* Dark Border */
+    }
+
+    /* 2. Fix Hover State in Dark Mode */
+    [data-theme="dark"] .table-custom tbody tr:hover,
+    [data-theme="dark"] .table-custom tbody tr:hover td {
+        background-color: #374151 !important;
+        /* Slightly Lighter Grey on Hover */
+    }
+
+    /* 3. Ensure Secondary Text (Date/Time) is Visible */
+    [data-theme="dark"] .table-custom .text-muted,
+    [data-theme="dark"] .table-custom small {
+        color: #9CA3AF !important;
+        /* Light Grey (Readable) */
+    }
+
+    /* 4. Fix Links inside the table */
+    [data-theme="dark"] .table-custom a {
+        color: #60A5FA !important;
+        /* Light Blue for links */
+    }
+
+    /* ========================================= */
+    /* ACTION BUTTONS STYLING                    */
+    /* ========================================= */
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 16px;
+        /* Compact padding */
+        font-size: 0.85rem;
+        /* Clean, small text */
+        font-weight: 600;
+        border-radius: 50px;
+        /* Pill shape */
+        color: #FFFFFF !important;
+        /* FORCE WHITE TEXT */
+        text-decoration: none;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        min-width: 110px;
+        /* Consistent width */
+    }
+
+    .btn-action i {
+        margin-right: 6px;
+    }
+
+    /* 1. Preparing Button (Orange/Amber) */
+    .btn-action-preparing {
+        background-color: #F59E0B !important;
+    }
+
+    .btn-action-preparing:hover {
+        background-color: #D97706 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+    }
+
+    /* 2. Ready/Deliver Button (Success Green) */
+    .btn-action-ready {
+        background-color: #10B981 !important;
+    }
+
+    .btn-action-ready:hover {
+        background-color: #059669 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    /* 3. Confirm Pickup Button (Dark) */
+    .btn-action-confirm {
+        background-color: #374151 !important;
+    }
+
+    .btn-action-confirm:hover {
+        background-color: #1F2937 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(55, 65, 81, 0.3);
+    }
+
+    /* 4. Completed State (Static Grey) */
+    .status-completed {
+        color: #6B7280 !important;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    [data-theme="dark"] .status-completed {
+        color: #9CA3AF !important;
+    }
+
+    /* ========================================= */
+    /* CRITICAL FIX: FORCE WHITE TEXT ON ACTIONS */
+    /* ========================================= */
+
+    /* Target any link explicitly formatted as a button inside the table cells */
+    .table-custom tbody td a.btn,
+    .table-custom tbody td a.btn-warning,
+    .table-custom tbody td a.btn-success,
+    .table-custom tbody td a.btn-primary,
+    .table-custom tbody td a.btn-action,
+    .table-custom tbody td a.btn-action-preparing,
+    .table-custom tbody td a.btn-action-ready,
+    .table-custom tbody td a.btn-action-confirm {
+        color: #FFFFFF !important;
+        /* Force White Text - High Priority */
+        text-decoration: none !important;
+        /* Remove any underlines */
+        font-weight: 700 !important;
+        /* Make text bold for better contrast */
+        letter-spacing: 0.5px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        /* Subtle shadow to make text pop */
+    }
+
+    /* Ensure hover state also keeps text white */
+    .table-custom tbody td a.btn:hover,
+    .table-custom tbody td a.btn-action:hover,
+    .table-custom tbody td a.btn-action-preparing:hover,
+    .table-custom tbody td a.btn-action-ready:hover,
+    .table-custom tbody td a.btn-action-confirm:hover {
+        color: #FFFFFF !important;
+    }
+</style>
+<div class="mb-4">
+    <h1 class="fw-bold">
+        <i class="bi bi-speedometer2"></i> Admin Dashboard
+    </h1>
+    <p class="lead">Manage all customer orders</p>
+</div>
+
+<!-- Orders Section -->
+
+<div class="card">
+    <div class="card-body">
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-hover table-custom">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Type</th>
+                        <th>Details</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>
+                            <strong>#{{ order.id }}</strong>
+                            {% if order.get('pickup_code') %}
+                            <br><span class="badge bg-info">{{ order.pickup_code }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>
+                            {% for item in order['items'] %}
+                            <small class="d-block">{{ item.quantity }}x {{ item.name }}</small>
+                            {% endfor %}
+                        </td>
+                        <td class="fw-bold">{{ "%.2f"|format(order.total) }} LE</td>
+                        <td>
+                            {% if order.get('order_type') == 'Delivery' %}
+                            <span class="badge bg-primary">
+                                <i class="bi bi-truck"></i> Delivery
+                            </span>
+                            {% elif order.get('order_type') == 'Takeaway' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-bag"></i> Takeaway
+                            </span>
+                            {% elif order.get('order_type') == 'Dine-in' %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-shop"></i> Dine-in
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.get('order_type') == 'Delivery' %}
+                            <small class="text-muted">
+                                <i class="bi bi-geo-alt"></i> {{ order.get('address', 'N/A') }}
+                            </small>
+                            {% elif order.get('order_type') == 'Takeaway' %}
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i> {{ order.get('estimated_pickup_time', 'N/A') }}
+                            </small>
+                            {% elif order.get('order_type') == 'Dine-in' %}
+                            <small class="d-block text-muted">
+                                <i class="bi bi-clock"></i> {{ order.get('estimated_pickup_time', 'N/A') }}
+                            </small>
+                            <small class="d-block text-muted">
+                                <i class="bi bi-people"></i> {{ order.get('guests', 'N/A') }} Guest{% if
+                                order.get('guests', 0) != 1 %}s{% endif %}
+                            </small>
+                            {% else %}
+                            <small class="text-muted">-</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.status == 'New' %}
+                            <span class="badge badge-status-new px-3 py-2 rounded-pill">New</span>
+                            {% elif order.status == 'Preparing' %}
+                            <span class="badge badge-status-preparing px-3 py-2 rounded-pill">Preparing</span>
+                            {% elif order.status == 'Ready' or order.status == 'Out for Delivery' %}
+                            <span class="badge badge-status-ready px-3 py-2 rounded-pill">{{ order.status }}</span>
+                            {% else %}
+                            <span class="badge badge-status-delivered px-3 py-2 rounded-pill">{{ order.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted"><small>{{ order.created_at }}</small></td>
+                        <td>
+                            {% if order.status == 'New' %}
+                            <a href="{{ url_for('update_order_status', order_id=order.id, new_status='Preparing') }}"
+                                class="btn-action btn-action-preparing">
+                                <i class="bi bi-fire"></i> Preparing
+                            </a>
+                            {% elif order.status == 'Preparing' %}
+                            <a href="{{ url_for('update_order_status', order_id=order.id, new_status='Ready') }}"
+                                class="btn-action btn-action-ready">
+                                <i class="bi bi-check-circle-fill"></i> Ready
+                            </a>
+                            {% elif order.status == 'Ready' %}
+                            {% if order.get('order_type') == 'Takeaway' %}
+                            <!-- Confirm Pickup button for Takeaway orders -->
+                            <a href="{{ url_for('update_order_status', order_id=order.id, new_status='Delivered') }}"
+                                class="btn-action btn-action-confirm"
+                                onclick="return confirm('Confirm that customer {{ order.customer_name }} picked up order {{ order.pickup_code }}?')">
+                                <i class="bi bi-check2-square"></i> Confirm Pickup
+                            </a>
+                            {% else %}
+                            <span class="status-completed">
+                                <i class="bi bi-check2-all me-1"></i> Awaiting Driver
+                            </span>
+                            {% endif %}
+                            {% else %}
+                            <span class="status-completed text-success">
+                                <i class="bi bi-check-lg me-1"></i> Completed
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+            <p class="mt-3 text-muted">No orders have been placed yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title fw-bold mb-3">
+            <i class="bi bi-info-circle"></i> Order Status Flow
+        </h5>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-primary">New</span>
+            <i class="bi bi-arrow-right"></i>
+            <span class="badge bg-warning text-dark">Preparing</span>
+            <i class="bi bi-arrow-right"></i>
+            <span class="badge bg-success">Ready</span>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Auto-refresh every 5 seconds for real-time order updates
+    setTimeout(function () {
+        location.reload();
+    }, 5000);
+</script>
+{% endblock %}
+{% endblock %}

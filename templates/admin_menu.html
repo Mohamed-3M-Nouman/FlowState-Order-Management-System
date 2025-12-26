@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}Menu Management - Restaurant Ordering{% endblock %}
+
+{% block content %}
+<style>
+    /* ========================================= */
+    /* ADMIN MENU TABLE STYLING                  */
+    /* ========================================= */
+
+    .table-menu {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        margin-top: 20px;
+    }
+
+    /* Green Header (Brand Identity) */
+    .table-menu thead th {
+        background-color: #3A5A40 !important;
+        /* Brand Dark Green */
+        color: #FFFFFF !important;
+        padding: 15px;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .table-menu thead th:first-child {
+        border-top-left-radius: 10px;
+    }
+
+    .table-menu thead th:last-child {
+        border-top-right-radius: 10px;
+    }
+
+    /* Row Styling (Light Mode Default) */
+    .table-menu tbody tr {
+        background-color: #FFFFFF;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+    }
+
+    .table-menu tbody tr:hover {
+        transform: scale(1.002);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-menu td {
+        padding: 15px;
+        vertical-align: middle;
+        border: none;
+        color: #333333;
+        font-weight: 500;
+    }
+
+    /* ========================================= */
+    /* DARK MODE OVERRIDES                       */
+    /* ========================================= */
+    [data-theme="dark"] .table-menu tbody tr,
+    [data-theme="dark"] .table-menu tbody td {
+        background-color: #1F2937 !important;
+        color: #F3F4F6 !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="dark"] .table-menu tbody tr:hover,
+    [data-theme="dark"] .table-menu tbody tr:hover td {
+        background-color: #374151 !important;
+    }
+
+    /* Force white text on all content */
+    [data-theme="dark"] .table-menu td,
+    [data-theme="dark"] .table-menu td strong,
+    [data-theme="dark"] .table-menu td small,
+    [data-theme="dark"] .table-menu td span.text-muted {
+        color: #F3F4F6 !important;
+    }
+
+    /* Keep badges visible in dark mode */
+    [data-theme="dark"] .table-menu .badge {
+        color: #FFFFFF !important;
+    }
+</style>
+<div class="mb-4">
+    <h1 class="fw-bold">
+        <i class="bi bi-list-ul"></i> Menu Management
+    </h1>
+    <p class="lead">Add, edit, and manage menu items</p>
+</div>
+
+<!-- Add New Item Form -->
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0" style="color: #FFFFFF !important;"><i class="bi bi-plus-circle"></i> Add New Menu Item</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('add_menu_item') }}">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label">Item Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="price" class="form-label">Price (LE) <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" min="0.01" class="form-control" id="price" name="price" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                    <select class="form-select" id="category" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Sandwiches">Sandwiches</option>
+                        <option value="Meals">Meals</option>
+                        <option value="Drinks">Drinks</option>
+                        <option value="Desserts">Desserts</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="image_url" class="form-label">Image URL</label>
+                <input type="url" class="form-control" id="image_url" name="image_url"
+                    placeholder="https://example.com/image.jpg">
+                <small class="text-muted">Leave empty for default placeholder image</small>
+            </div>
+            <button type="submit" class="btn btn-success text-white">
+                <i class="bi bi-plus-circle text-white me-2"></i> Add Item
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Menu Items Table -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0" style="color: #FFFFFF !important;"><i class="bi bi-list-ul"></i> Current Menu Items</h5>
+    </div>
+    <div class="card-body">
+        {% if menu_items %}
+        <div class="table-responsive">
+            <table class="table table-menu">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Delivery Service Row (Static) -->
+                    <tr class="table-warning">
+                        <td><strong><i class="bi bi-truck"></i> DELIVERY</strong></td>
+                        <td><strong>Delivery Service</strong></td>
+                        <td>
+                            <small class="text-muted">
+                                Delivery fee applied to all delivery orders
+                            </small>
+                        </td>
+                        <td class="fw-bold">{{ config.delivery_fee }} LE</td>
+                        <td>
+                            <span class="badge bg-dark">
+                                <i class="bi bi-gear"></i> Service
+                            </span>
+                        </td>
+                        <td>
+                            {% if config.is_delivery_active %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Available
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-x-circle"></i> Unavailable
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- Edit Price Button (triggers modal) -->
+                            <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal"
+                                data-bs-target="#editDeliveryModal">
+                                <i class="bi bi-pencil"></i> Edit Price
+                            </button>
+                            <!-- Toggle Availability Button -->
+                            <a href="{{ url_for('toggle_delivery') }}"
+                                class="btn btn-sm {% if config.is_delivery_active %}btn-warning{% else %}btn-success{% endif %}"
+                                onclick="return confirm('Are you sure you want to {% if config.is_delivery_active %}deactivate{% else %}activate{% endif %} delivery service?')">
+                                <i
+                                    class="bi bi-{% if config.is_delivery_active %}pause-circle{% else %}play-circle{% endif %}"></i>
+                                {% if config.is_delivery_active %}Deactivate{% else %}Activate{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Menu Items -->
+                    {% for item in menu_items %}
+                    <tr>
+                        <td><strong>#{{ item.id }}</strong></td>
+                        <td>{{ item.name }}</td>
+                        <td>
+                            <small class="text-muted">
+                                {{ item.description[:50] }}{% if item.description|length > 50 %}...{% endif %}
+                            </small>
+                        </td>
+                        <td class="fw-bold">{{ "%.2f"|format(item.price) }} LE</td>
+                        <td>
+                            {% if item.category == 'Sandwiches' %}
+                            <span class="badge bg-info">
+                                <i class="bi bi-bag"></i> {{ item.category }}
+                            </span>
+                            {% elif item.category == 'Meals' %}
+                            <span class="badge bg-primary">
+                                <i class="bi bi-egg-fried"></i> {{ item.category }}
+                            </span>
+                            {% elif item.category == 'Drinks' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-cup-straw"></i> {{ item.category }}
+                            </span>
+                            {% elif item.category == 'Desserts' %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-cake2"></i> {{ item.category }}
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ item.category }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.get('is_available', True) %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Available
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-x-circle"></i> Unavailable
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('edit_menu_item', item_id=item.id) }}"
+                                class="btn btn-sm btn-warning me-1">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <a href="{{ url_for('delete_menu_item', item_id=item.id) }}" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete {{ item.name }}?')">
+                                <i class="bi bi-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+            <p class="mt-3 text-muted">No menu items yet. Add your first item above!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h6 class="fw-bold mb-2"><i class="bi bi-info-circle"></i> Available Categories</h6>
+        <div class="d-flex gap-2 flex-wrap">
+            <span class="badge bg-info"><i class="bi bi-bag"></i> Sandwiches</span>
+            <span class="badge bg-primary"><i class="bi bi-egg-fried"></i> Meals</span>
+            <span class="badge bg-success"><i class="bi bi-cup-straw"></i> Drinks</span>
+            <span class="badge bg-warning text-dark"><i class="bi bi-cake2"></i> Desserts</span>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Delivery Fee Modal -->
+<div class="modal fade" id="editDeliveryModal" tabindex="-1" aria-labelledby="editDeliveryModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editDeliveryModalLabel" style="color: #FFFFFF !important;">
+                    <i class="bi bi-truck"></i> Edit Delivery Fee
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('update_delivery_price') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="delivery_fee" class="form-label fw-bold">
+                            Delivery Fee (LE) <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" step="0.5" min="0" class="form-control" id="delivery_fee"
+                            name="delivery_fee" value="{{ config.delivery_fee }}" required>
+                        <small class="text-muted">This fee will be applied to all delivery orders</small>
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        <small>
+                            <i class="bi bi-info-circle"></i>
+                            Current fee: <strong>{{ config.delivery_fee }} LE</strong>
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Update Fee
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

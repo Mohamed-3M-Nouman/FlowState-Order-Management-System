@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Menu - Restaurant Ordering{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="fw-bold">
+        <i class="bi bi-menu-button-wide"></i> Our Menu
+    </h1>
+    <p class="lead">Browse our delicious selection and add items to your cart</p>
+</div>
+
+{% if categories|length > 0 %}
+<!-- Category Filter Bar -->
+<div class="mb-4">
+    <div class="btn-group flex-wrap" role="group" aria-label="Category filter">
+        <button type="button" class="btn btn-filter active" data-filter="all" onclick="filterMenu('all')">
+            <i class="bi bi-grid-3x3-gap"></i> All
+            <span class="badge bg-dark text-dark ms-1">{{ menu_items|length }}</span>
+        </button>
+        {% for category in categories %}
+        <button type="button" class="btn btn-filter" data-filter="{{ category }}"
+            onclick="filterMenu('{{ category }}')">
+            {% if category == 'Sandwiches' %}
+            <i class="bi bi-bag"></i>
+            {% elif category == 'Meals' %}
+            <i class="bi bi-egg-fried"></i>
+            {% elif category == 'Drinks' %}
+            <i class="bi bi-cup-straw"></i>
+            {% elif category == 'Desserts' %}
+            <i class="bi bi-cake2"></i>
+            {% else %}
+            <i class="bi bi-star"></i>
+            {% endif %}
+            {{ category }}
+            <span class="badge bg-dark text-dark ms-1">{{ menu_by_category[category]|length }}</span>
+        </button>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- All Items Grid -->
+<div class="row g-4" id="menuGrid">
+    {% for item in menu_items %}
+    <div class="col-md-4 menu-item" data-category="{{ item.category }}">
+        <div class="card h-100 shadow-sm hover-lift" style="transition: transform 0.2s;">
+            <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.name }}"
+                style="height: 200px; object-fit: cover;">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold">{{ item.name }}</h5>
+                <p class="card-text text-muted flex-grow-1">{{ item.description }}</p>
+
+                <!-- Category Badge -->
+                <div class="mb-2">
+                    {% if item.category == 'Sandwiches' %}
+                    <span class="badge bg-info">
+                        <i class="bi bi-bag"></i> {{ item.category }}
+                    </span>
+                    {% elif item.category == 'Meals' %}
+                    <span class="badge bg-primary">
+                        <i class="bi bi-egg-fried"></i> {{ item.category }}
+                    </span>
+                    {% elif item.category == 'Drinks' %}
+                    <span class="badge bg-success">
+                        <i class="bi bi-cup-straw"></i> {{ item.category }}
+                    </span>
+                    {% elif item.category == 'Desserts' %}
+                    <span class="badge bg-warning text-dark">
+                        <i class="bi bi-cake2"></i> {{ item.category }}
+                    </span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{ item.category }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="h5 mb-0 text-primary fw-bold">{{ "%.2f"|format(item.price) }} LE</span>
+
+                    {% if cart_item_counts.get(item.id, 0) > 0 %}
+                    <!-- Item is in cart - Show Quantity Stepper -->
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Quantity controls">
+                        {% if cart_item_counts[item.id] > 1 %}
+                        <!-- Minus button when quantity > 1 -->
+                        <a href="{{ url_for('decrease_cart_quantity', item_id=item.id) }}"
+                            class="btn btn-outline-secondary">
+                            <i class="bi bi-dash"></i>
+                        </a>
+                        {% else %}
+                        <!-- Delete button when quantity == 1 -->
+                        <a href="{{ url_for('decrease_cart_quantity', item_id=item.id) }}"
+                            class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                        {% endif %}
+
+                        <!-- Quantity Display -->
+                        <span class="btn btn-outline-secondary disabled" style="min-width: 45px;">
+                            {{ cart_item_counts[item.id] }}
+                        </span>
+
+                        <!-- Plus button -->
+                        <a href="{{ url_for('increase_cart_quantity', item_id=item.id) }}"
+                            class="btn btn-outline-secondary">
+                            <i class="bi bi-plus"></i>
+                        </a>
+                    </div>
+                    {% else %}
+                    <!-- Item not in cart - Show Add to Cart Button -->
+                    <a href="{{ url_for('add_to_cart', item_id=item.id) }}" class="btn btn-primary">
+                        <i class="bi bi-cart-plus"></i> Add to Cart
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Add hover effect style -->
+<style>
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(34, 79, 29, 0.15) !important;
+    }
+
+
+    .btn-filter {
+        color: black;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-filter:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        color: #fff;
+    }
+
+    .btn-filter.active {
+        background-color: #3A5A40 !important;
+        /* Dark Green */
+        border: 1px solid #3A5A40 !important;
+        box-shadow: 0 0.25rem 0.5rem rgba(58, 90, 64, 0.3) !important;
+        /* Green Glow */
+        color: #fff !important;
+    }
+
+    /* ========================================= */
+    /* DARK MODE: FILTER BUTTONS FIX             */
+    /* ========================================= */
+
+    /* 1. Inactive Buttons in Dark Mode */
+    [data-theme="dark"] .btn-filter {
+        color: #E5E7EB !important;
+        /* Light Grey Text (Visible) */
+        border-color: #6B7280 !important;
+        /* Visible Grey Border */
+        background-color: transparent !important;
+    }
+
+    /* 2. Hover Effect for Inactive Buttons */
+    [data-theme="dark"] .btn-filter:hover {
+        background-color: var(--primary-color) !important;
+        /* Green on Hover */
+        border-color: var(--primary-color) !important;
+        color: #FFFFFF !important;
+    }
+
+    /* 3. Active Button in Dark Mode */
+    [data-theme="dark"] .btn-filter.active {
+        background-color: var(--primary-color) !important;
+        color: #FFFFFF !important;
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+        /* Add glow depth */
+    }
+
+    /* 4. Fix the Number Badges inside filter buttons */
+    [data-theme="dark"] .btn-filter .badge {
+        background-color: #374151 !important;
+        /* Lighter Grey Badge */
+        color: #FFFFFF !important;
+    }
+
+    [data-theme="dark"] .btn-filter.active .badge {
+        background-color: rgba(0, 0, 0, 0.3) !important;
+        /* Dark semi-transparent on active */
+        color: #FFFFFF !important;
+    }
+
+    .menu-item {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .menu-item.hidden {
+        display: none;
+    }
+</style>
+
+<script>
+    function filterMenu(category) {
+        // Get all menu items
+        const menuItems = document.querySelectorAll('.menu-item');
+
+        // Get all filter buttons
+        const filterButtons = document.querySelectorAll('.btn-filter');
+
+        // Update active button
+        filterButtons.forEach(btn => {
+            if (btn.dataset.filter === category) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Filter items
+        menuItems.forEach(item => {
+            if (category === 'all') {
+                item.classList.remove('hidden');
+            } else {
+                if (item.dataset.category === category) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            }
+        });
+    }
+</script>
+
+{% else %}
+<!-- Empty State -->
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+        <p class="mt-3 text-muted">No menu items available at the moment.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

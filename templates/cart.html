@@ -1,0 +1,449 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - Restaurant Ordering{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========================================= */
+    /* UNIFIED SHOPPING CART TABLE STYLE         */
+    /* ========================================= */
+
+    .table-cart {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        /* Spacing between rows */
+        margin-top: 20px;
+    }
+
+    /* 1. Green Header (Brand Identity) */
+    .table-cart thead th {
+        background-color: #3A5A40;
+        /* Brand Dark Green */
+        color: #FFFFFF;
+        padding: 16px;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+
+    .table-cart thead th:first-child {
+        border-top-left-radius: 12px;
+    }
+
+    .table-cart thead th:last-child {
+        border-top-right-radius: 12px;
+    }
+
+    /* 2. Row Styling (Light Mode) */
+    .table-cart tbody tr {
+        background-color: #FFFFFF;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+    }
+
+    /* Make the row look like a "Card" */
+    .table-cart tbody td {
+        padding: 20px;
+        vertical-align: middle;
+        border: none;
+        color: #333333;
+    }
+
+    /* First and Last cells rounded for card effect */
+    .table-cart tbody tr td:first-child {
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+
+    .table-cart tbody tr td:last-child {
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+
+    /* 3. Text & Elements */
+    .cart-item-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary-color, #3A5A40);
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .cart-item-desc {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    /* ========================================= */
+    /* DARK MODE OVERRIDES (Critical)            */
+    /* ========================================= */
+    [data-theme="dark"] .table-cart tbody tr {
+        background-color: #1F2937 !important;
+        /* Dark Grey Card BG */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="dark"] .table-cart tbody td {
+        color: #F3F4F6 !important;
+        /* White Text */
+    }
+
+    [data-theme="dark"] .cart-item-title {
+        color: #4ade80 !important;
+        /* Lighter Green for contrast */
+    }
+
+    [data-theme="dark"] .cart-item-desc {
+        color: #9CA3AF !important;
+        /* Light Grey */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="fw-bold">
+        <i class="bi bi-cart"></i> Shopping Cart
+    </h1>
+    <p class="lead">Review your items before placing the order</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                {% if cart_items %}
+                <div class="table-responsive">
+                    <table class="table-cart">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cart_item in cart_items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="cart-item-title">{{ cart_item.item.name }}</span>
+                                        <span class="cart-item-desc">{{ cart_item.item.description[:50] }}...</span>
+                                    </div>
+                                </td>
+                                <td>{{ "%.2f"|format(cart_item.item.price) }} LE</td>
+                                <td class="text-center">
+                                    <!-- Smart Quantity Stepper -->
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Quantity controls">
+                                        {% if cart_item.quantity > 1 %}
+                                        <!-- Minus button when quantity > 1 -->
+                                        <a href="{{ url_for('decrease_cart_quantity', item_id=cart_item.item.id) }}"
+                                            class="btn btn-outline-secondary">
+                                            <i class="bi bi-dash"></i>
+                                        </a>
+                                        {% else %}
+                                        <!-- Delete button when quantity == 1 -->
+                                        <a href="{{ url_for('decrease_cart_quantity', item_id=cart_item.item.id) }}"
+                                            class="btn btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                        {% endif %}
+
+                                        <!-- Quantity Display -->
+                                        <span class="btn btn-outline-secondary disabled" style="min-width: 50px;">
+                                            {{ cart_item.quantity }}
+                                        </span>
+
+                                        <!-- Plus button -->
+                                        <a href="{{ url_for('increase_cart_quantity', item_id=cart_item.item.id) }}"
+                                            class="btn btn-outline-secondary">
+                                            <i class="bi bi-plus"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td class="text-end fw-bold">{{ "%.2f"|format(cart_item.subtotal) }} LE</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-cart-x text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-3 text-muted">Your cart is empty</p>
+                    <a href="{{ url_for('menu') }}" class="btn btn-primary">
+                        <i class="bi bi-arrow-left"></i> Browse Menu
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if cart_items %}
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4">Order Summary</h5>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Items:</span>
+                    <span>{{ cart_items|length }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal:</span>
+                    <span>{{ "%.2f"|format(total) }} LE</span>
+                </div>
+
+                <div class="alert alert-info py-2 px-3 mb-2">
+                    <small>
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Delivery Fee:</strong> {{ config.delivery_fee }} LE applies to Delivery orders only
+                    </small>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="h5 mb-0">Estimated Total:</span>
+                    <span class="h5 mb-0 text-primary fw-bold" id="estimatedTotal">{{ "%.2f"|format(total +
+                        config.delivery_fee) }} LE</span>
+                </div>
+
+                <form method="POST" action="{{ url_for('place_order') }}">
+                    <!-- Order Type Selection -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-geo-alt"></i> Order Type
+                        </h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="order_type" id="delivery"
+                                value="Delivery" checked onchange="toggleAddressField()">
+                            <label class="form-check-label" for="delivery">
+                                <i class="bi bi-truck text-primary"></i> <strong>Delivery</strong>
+                                <small class="d-block text-muted">Get it delivered to your door</small>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="order_type" id="takeaway"
+                                value="Takeaway" onchange="toggleAddressField()">
+                            <label class="form-check-label" for="takeaway">
+                                <i class="bi bi-bag text-success"></i> <strong>Takeaway</strong>
+                                <small class="d-block text-muted">Pick up from restaurant</small>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="order_type" id="dinein" value="Dine-in"
+                                onchange="toggleAddressField()">
+                            <label class="form-check-label" for="dinein">
+                                <i class="bi bi-shop text-warning"></i> <strong>Dine-in</strong>
+                                <small class="d-block text-muted">Eat at the restaurant</small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Address Field (shown only for Delivery) -->
+                    <div class="mb-4" id="delivery-fields">
+                        <h6 class="fw-bold mb-2">
+                            <i class="bi bi-house-door"></i> Delivery Address
+                        </h6>
+
+                        {% if user_addresses %}
+                        <!-- User has saved addresses - Show dropdown -->
+                        <select class="form-select mb-2" id="address-select" onchange="handleAddressSelection()">
+                            {% for address in user_addresses %}
+                            <option value="{{ address }}">{{ address }}</option>
+                            {% endfor %}
+                            <option value="__new__">✏️ Enter a new address...</option>
+                        </select>
+
+                        <!-- Hidden input for selected address -->
+                        <input type="hidden" name="address" id="address" value="{{ user_addresses[0] }}" required>
+
+                        <!-- New address input (hidden by default) -->
+                        <div id="new-address-input" style="display: none;">
+                            <input type="text" class="form-control" id="new-address-field"
+                                placeholder="Enter your delivery address">
+                        </div>
+
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> Select a saved address or enter a new one.
+                            <a href="{{ url_for('profile') }}" class="text-decoration-none">Manage addresses</a>
+                        </small>
+                        {% else %}
+                        <!-- No saved addresses - Show text input -->
+                        <input type="text" class="form-control mb-2" name="address" id="address"
+                            placeholder="Enter your delivery address" required>
+                        <small class="text-muted">
+                            <i class="bi bi-lightbulb"></i> Tip: Save addresses in your
+                            <a href="{{ url_for('profile') }}" class="text-decoration-none">profile</a>
+                            for faster checkout next time!
+                        </small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Dine-in Reservation Fields (shown only for Dine-in) -->
+                    <div class="mb-4" id="dinein-fields" style="display: none;">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-calendar-check"></i> Table Reservation
+                        </h6>
+                        <div class="mb-3">
+                            <label for="reservation_time" class="form-label">
+                                <i class="bi bi-clock"></i> Date & Time
+                            </label>
+                            <input type="datetime-local" class="form-control" name="reservation_time"
+                                id="reservation_time" min="{{ now }}">
+                            <small class="text-muted">Select your preferred reservation time</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="guests" class="form-label">
+                                <i class="bi bi-people"></i> Number of Guests
+                            </label>
+                            <input type="number" class="form-control" name="guests" id="guests" min="1" max="20"
+                                placeholder="Number of guests">
+                            <small class="text-muted">Maximum 20 guests per reservation</small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold mb-2">
+                        <i class="bi bi-check-circle"></i> Place Order
+                    </button>
+                </form>
+
+                <a href="{{ url_for('menu') }}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-arrow-left"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ========================================================================
+    // SAFE VARIABLE INITIALIZATION (Prevents Syntax Errors)
+    // ========================================================================
+    const subtotal = parseFloat("{{ total | default(0) }}");
+    const deliveryFee = parseFloat("{{ config.delivery_fee | default(0) }}");
+    // ========================================================================
+    // FUNCTION: Update Estimated Total Based on Order Type
+    // ========================================================================
+    function updateEstimatedTotal() {
+        const deliveryRadio = document.getElementById('delivery');
+        const estimatedTotalElement = document.getElementById('estimatedTotal');
+
+        if (!estimatedTotalElement) return;
+
+        // Calculate total based on order type
+        let currentTotal = subtotal;
+        if (deliveryRadio && deliveryRadio.checked) {
+            currentTotal += deliveryFee;
+        }
+
+        // Update display
+        estimatedTotalElement.textContent = currentTotal.toFixed(2) + ' LE';
+    }
+
+    // ========================================================================
+    // FUNCTION: Toggle Address/Reservation Fields Based on Order Type
+    // ========================================================================
+    function toggleAddressField() {
+        const deliveryRadio = document.getElementById('delivery');
+        const takeawayRadio = document.getElementById('takeaway');
+        const dineinRadio = document.getElementById('dinein');
+
+        const deliveryFields = document.getElementById('delivery-fields');
+        const dineinFields = document.getElementById('dinein-fields');
+
+        const addressInput = document.getElementById('address');
+        const reservationTimeInput = document.getElementById('reservation_time');
+        const guestsInput = document.getElementById('guests');
+
+        if (deliveryRadio && deliveryRadio.checked) {
+            // Show delivery fields, hide dine-in fields
+            if (deliveryFields) deliveryFields.style.display = 'block';
+            if (dineinFields) dineinFields.style.display = 'none';
+
+            if (addressInput) addressInput.required = true;
+            if (reservationTimeInput) reservationTimeInput.required = false;
+            if (guestsInput) guestsInput.required = false;
+        } else if (dineinRadio && dineinRadio.checked) {
+            // Show dine-in fields, hide delivery fields
+            if (deliveryFields) deliveryFields.style.display = 'none';
+            if (dineinFields) dineinFields.style.display = 'block';
+
+            if (addressInput) {
+                addressInput.required = false;
+                addressInput.value = '';
+            }
+            if (reservationTimeInput) reservationTimeInput.required = true;
+            if (guestsInput) guestsInput.required = true;
+        } else {
+            // Takeaway: Hide both fields
+            if (deliveryFields) deliveryFields.style.display = 'none';
+            if (dineinFields) dineinFields.style.display = 'none';
+
+            if (addressInput) {
+                addressInput.required = false;
+                addressInput.value = '';
+            }
+            if (reservationTimeInput) reservationTimeInput.required = false;
+            if (guestsInput) guestsInput.required = false;
+        }
+
+        // Update total after changing order type
+        updateEstimatedTotal();
+    }
+
+    // ========================================================================
+    // FUNCTION: Handle Saved Address Selection
+    // ========================================================================
+    function handleAddressSelection() {
+        const select = document.getElementById('address-select');
+        const addressInput = document.getElementById('address');
+        const newAddressInput = document.getElementById('new-address-input');
+        const newAddressField = document.getElementById('new-address-field');
+
+        if (select && select.value === '__new__') {
+            // Show new address input
+            if (newAddressInput) newAddressInput.style.display = 'block';
+            if (newAddressField) newAddressField.required = true;
+            if (addressInput) addressInput.value = '';
+
+            // Update hidden field when user types
+            if (newAddressField) {
+                newAddressField.addEventListener('input', function () {
+                    if (addressInput) addressInput.value = this.value;
+                });
+            }
+        } else {
+            // Use selected saved address
+            if (newAddressInput) newAddressInput.style.display = 'none';
+            if (newAddressField) newAddressField.required = false;
+            if (addressInput && select) addressInput.value = select.value;
+        }
+    }
+
+    // ========================================================================
+    // EVENT LISTENERS: Initialize on Page Load
+    // ========================================================================
+    document.addEventListener('DOMContentLoaded', function () {
+        // Attach event listeners to order type radio buttons
+        const orderTypeRadios = document.querySelectorAll('input[name="order_type"]');
+        orderTypeRadios.forEach(radio => {
+            radio.addEventListener('change', toggleAddressField);
+        });
+
+        // Initialize field visibility and total on page load
+        toggleAddressField();
+        updateEstimatedTotal();
+    });
+</script>
+{% endblock %}

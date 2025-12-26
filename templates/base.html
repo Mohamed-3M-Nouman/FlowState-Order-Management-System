@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Restaurant Ordering System{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ========================================= */
+        /* CSS VARIABLES - LIGHT & DARK THEMES */
+        /* ========================================= */
+        :root {
+            /* Default Light Theme */
+            --primary-color: #3A5A40;
+            --secondary-color: #A3B18A;
+            --background-color: #F3F4F6;
+            /* Light Grey */
+            --card-bg: #FFFFFF;
+            /* White */
+            --text-main: #1F2937;
+            /* Dark Grey Text */
+            --text-muted: #4B5563;
+            /* Medium Grey */
+            --border-color: #E5E7EB;
+            --text-light: #F9FAFB;
+            /* White for text on dark backgrounds */
+            --accent-color: #D4A373;
+            /* Soft Brown/Orange for Call-to-Action */
+            --text-dark: #1F2937;
+            /* Legacy support */
+        }
+
+        /* ========================================= */
+        /* DARK MODE COMPREHENSIVE OVERRIDES         */
+        /* ========================================= */
+        [data-theme="dark"] {
+            /* 1. Core Variables */
+            --primary-color: #4E7A55;
+            /* Lighter Green for contrast */
+            --secondary-color: #8FBC8F;
+            /* Light Sage */
+            --background-color: #111827;
+            /* Very Dark Blue/Black (Bg) */
+            --card-bg: #1F2937;
+            /* Dark Grey (Surface) */
+            --text-main: #F3F4F6;
+            /* Off-White Text */
+            --text-muted: #9CA3AF;
+            /* Light Grey Text */
+            --border-color: #374151;
+            /* Dark Border */
+            --input-bg: #374151;
+            /* Inputs Background */
+            --text-light: #F9FAFB;
+            --accent-color: #D4A373;
+            --text-dark: #F9FAFB;
+            /* Legacy support - flip to light */
+        }
+
+        /* 2. Global Text Fixes */
+        [data-theme="dark"] body,
+        [data-theme="dark"] p,
+        [data-theme="dark"] h1,
+        [data-theme="dark"] h2,
+        [data-theme="dark"] h3,
+        [data-theme="dark"] h4,
+        [data-theme="dark"] h5,
+        [data-theme="dark"] h6,
+        [data-theme="dark"] span,
+        [data-theme="dark"] div {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* 3. Cards & Containers */
+        [data-theme="dark"] .card,
+        [data-theme="dark"] .list-group-item,
+        [data-theme="dark"] .modal-content {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        /* 4. Form Inputs (Crucial Fix) */
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background-color: var(--input-bg) !important;
+            border-color: var(--border-color) !important;
+            color: #FFFFFF !important;
+            /* Force White Text inside inputs */
+        }
+
+        [data-theme="dark"] .form-control::placeholder {
+            color: #9CA3AF !important;
+        }
+
+        /* 5. Tables */
+        [data-theme="dark"] .table {
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        [data-theme="dark"] .table thead th {
+            background-color: #1f2937 !important;
+            /* Match Card BG */
+            color: var(--primary-color) !important;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background-color: #374151 !important;
+            /* Highlight color */
+        }
+
+        /* 6. Dropdowns */
+        [data-theme="dark"] .dropdown-menu {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        [data-theme="dark"] .dropdown-item {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .dropdown-item:hover {
+            background-color: var(--primary-color) !important;
+            color: #FFFFFF !important;
+        }
+
+        /* ========================================= */
+        /* DARK MODE: FILTER BUTTONS FIX             */
+        /* ========================================= */
+
+        /* 1. Inactive Buttons (Outline) in Dark Mode */
+        [data-theme="dark"] .btn-outline-secondary {
+            color: #E5E7EB !important;
+            /* Light Grey Text (Visible) */
+            border-color: #6B7280 !important;
+            /* Visible Grey Border */
+            background-color: transparent !important;
+        }
+
+        /* 2. Hover Effect for Inactive Buttons */
+        [data-theme="dark"] .btn-outline-secondary:hover {
+            background-color: var(--primary-color) !important;
+            /* Green on Hover */
+            border-color: var(--primary-color) !important;
+            color: #FFFFFF !important;
+        }
+
+        /* 3. Active Button (Solid) in Dark Mode */
+        [data-theme="dark"] .btn-primary {
+            background-color: var(--primary-color) !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            /* Add glow depth */
+        }
+
+        /* 4. Fix the Number Badges inside buttons */
+        [data-theme="dark"] .btn-outline-secondary .badge {
+            background-color: #374151 !important;
+            /* Lighter Grey Badge */
+            color: #FFFFFF !important;
+        }
+
+        [data-theme="dark"] .btn-primary .badge {
+            background-color: rgba(0, 0, 0, 0.3) !important;
+            /* Dark semi-transparent on active */
+            color: #FFFFFF !important;
+        }
+
+        /* 8. Navbar Brand Fix */
+        [data-theme="dark"] .navbar-brand {
+            color: #FFFFFF !important;
+        }
+
+        /* Body Styling */
+        body {
+            min-height: 100vh;
+            background-color: var(--background-color) !important;
+            color: var(--text-main) !important;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background-color: var(--primary-color) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .navbar-brand {
+            color: #FFFFFF !important;
+            opacity: 1 !important;
+            font-weight: 700;
+            font-size: 1.4rem;
+            text-decoration: none;
+        }
+
+        .navbar-brand:hover {
+            color: #E5E7EB !important;
+        }
+
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+        }
+
+        .navbar-toggler {
+            border-color: var(--text-light);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(249, 250, 251, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            margin-bottom: 40px;
+        }
+
+        /* Card Styling */
+        .card {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            font-weight: 600;
+            border-bottom: none;
+        }
+
+        /* Headings */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: var(--primary-color, #3A5A40) !important;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Primary Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--text-light);
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active {
+            background-color: #2d4532;
+            border-color: #2d4532;
+            color: var(--text-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Secondary Buttons */
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: var(--text-dark);
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background-color: #8a9a77;
+            border-color: #8a9a77;
+        }
+
+        /* Accent/Warning Buttons */
+        .btn-warning {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: var(--text-light);
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-warning:hover {
+            background-color: #c08f5f;
+            border-color: #c08f5f;
+            color: var(--text-light);
+        }
+
+        /* Success Buttons */
+        .btn-success {
+            background-color: #588157;
+            border-color: #588157;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-success:hover {
+            background-color: #466a45;
+            border-color: #466a45;
+        }
+
+        /* Info Buttons */
+        .btn-info {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: var(--text-dark);
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-info:hover {
+            background-color: #8a9a77;
+            border-color: #8a9a77;
+        }
+
+        /* Badges */
+        .badge {
+            font-weight: 600;
+            padding: 0.4em 0.8em;
+        }
+
+        .badge.bg-secondary {
+            background-color: var(--secondary-color) !important;
+            color: var(--text-dark);
+        }
+
+        .badge.bg-success {
+            background-color: #588157 !important;
+        }
+
+        .badge.bg-danger {
+            background-color: #dc3545 !important;
+        }
+
+        .badge.bg-warning {
+            background-color: var(--accent-color) !important;
+            color: var(--text-light);
+        }
+
+        .badge.bg-info {
+            background-color: var(--secondary-color) !important;
+            color: var(--text-dark);
+        }
+
+        /* Tables */
+        .table {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        .table thead {
+            background-color: var(--primary-color) !important;
+            color: var(--text-light) !important;
+        }
+
+        .table thead th {
+            border-bottom: 2px solid var(--primary-color) !important;
+            font-weight: 600;
+            color: var(--text-light) !important;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--border-color) !important;
+        }
+
+        .table tbody td {
+            color: var(--text-main) !important;
+        }
+
+        /* ========================================= */
+        /* CUSTOM ALERTS STYLING                     */
+        /* ========================================= */
+
+        .alert {
+            border: none;
+            border-radius: 12px;
+            /* Soft corners */
+            padding: 1rem 1.25rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            font-weight: 500;
+        }
+
+        /* 1. Success Alert (Green Theme) */
+        .alert-success {
+            background-color: #E6F4EA !important;
+            /* Very Light Green */
+            color: #1E4620 !important;
+            /* Dark Green Text */
+            border-left: 5px solid #3A5A40;
+            /* Accent Border */
+        }
+
+        /* 2. Danger/Error Alert (Soft Red) */
+        .alert-danger {
+            background-color: #FDE8E8 !important;
+            /* Soft Red */
+            color: #9B1C1C !important;
+            /* Dark Red Text */
+            border-left: 5px solid #C81E1E;
+        }
+
+        /* 3. Warning Alert (Soft Orange/Brown) */
+        .alert-warning {
+            background-color: #FFF8E1 !important;
+            /* Soft Yellow */
+            color: #9A6700 !important;
+            /* Dark Orange Text */
+            border-left: 5px solid #D4A373;
+            /* Match our Accent Color */
+        }
+
+        /* 4. Info Alert (Soft Blue/Sage) */
+        .alert-info {
+            background-color: #E3F2FD !important;
+            /* Soft Blue */
+            color: #0c5460 !important;
+            border-left: 5px solid #0dcaf0;
+        }
+
+        /* ========================================= */
+        /* DARK MODE ALERTS OVERRIDES                */
+        /* ========================================= */
+        [data-theme="dark"] .alert-success {
+            background-color: rgba(58, 90, 64, 0.2) !important;
+            /* Transparent Green */
+            color: #A3B18A !important;
+            /* Sage Text */
+            border-left-color: #A3B18A;
+        }
+
+        [data-theme="dark"] .alert-danger {
+            background-color: rgba(200, 30, 30, 0.2) !important;
+            color: #F8B4B4 !important;
+            border-left-color: #F98080;
+        }
+
+        [data-theme="dark"] .alert-warning {
+            background-color: rgba(212, 163, 115, 0.2) !important;
+            color: #FCE96A !important;
+            border-left-color: #D4A373;
+        }
+
+        [data-theme="dark"] .alert-info {
+            background-color: rgba(13, 202, 240, 0.2) !important;
+            color: #9FE2F7 !important;
+            border-left-color: #0dcaf0;
+        }
+
+        /* Forms */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(58, 90, 64, 0.25);
+        }
+
+        .input-group-text {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: var(--text-dark);
+        }
+
+        /* Links */
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #2d4532;
+            text-decoration: underline;
+        }
+
+        /* Custom Utility Classes */
+        .bg-light {
+            background-color: #F9FAFB !important;
+        }
+
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        .text-secondary {
+            color: var(--secondary-color) !important;
+        }
+
+        .text-muted {
+            color: #6B7280 !important;
+        }
+
+        /* Menu Item Cards */
+        .menu-item-card {
+            transition: all 0.3s ease;
+        }
+
+        .menu-item-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        /* Price Tags */
+        .price-tag {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+
+
+        /* ========================================= */
+        /* FORCEFUL OVERRIDES - FIX ALL VISIBILITY ISSUES */
+        /* ========================================= */
+
+        /* 1. Force ALL Headings to be Dark Green */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        .display-4,
+        .display-5,
+        .card-title {
+            color: #3A5A40 !important;
+            /* Dark Green */
+            font-weight: 800 !important;
+        }
+
+        /* 2. Force ALL Descriptions & Subtitles to use theme colors */
+        /* This fixes texts like "Browse our delicious selection..." */
+        p,
+        .lead,
+        span,
+        small {
+            color: var(--text-main) !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* 3. Exception: Keep Navbar text light */
+        .navbar p,
+        .navbar span,
+        .navbar small,
+        .navbar .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .navbar .nav-link:hover {
+            color: #FFFFFF !important;
+        }
+
+        /* 4. Exception: Keep Buttons text light (if they are primary) */
+        .btn-primary,
+        .btn-danger,
+        .btn-success {
+            color: #FFFFFF !important;
+        }
+
+        /* 5. Exception: Badges */
+        .badge {
+            color: #FFFFFF !important;
+        }
+
+        /* ========================================= */
+        /* FIX FILTER BUTTONS & PRIMARY ELEMENTS */
+        /* ========================================= */
+
+        /* Fix Filter Buttons (Active State) */
+        .btn-primary,
+        .btn-primary.active,
+        .btn-primary:active,
+        .show>.btn-primary.dropdown-toggle,
+        .nav-pills .nav-link.active,
+        .nav-pills .show>.nav-link {
+            background-color: var(--primary-color, #3A5A40) !important;
+            /* Dark Green */
+            border-color: var(--primary-color, #3A5A40) !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Fix Focus Rings (The glow when you click) */
+        .btn-check:focus+.btn,
+        .btn:focus,
+        .btn-primary:focus {
+            box-shadow: 0 0 0 0.25rem rgba(58, 90, 64, 0.5) !important;
+            /* Green Glow */
+        }
+
+        /* Fix Hover State */
+        .btn-primary:hover {
+            background-color: #2d4532 !important;
+            /* Slightly Darker Green */
+            border-color: #2d4532 !important;
+        }
+
+        /* ========================================= */
+        /* PILL-SHAPED BUTTONS (ORGANIC THEME) */
+        /* ========================================= */
+
+        /* Make ALL buttons fully rounded (Pill Shape) */
+        .btn {
+            border-radius: 50px !important;
+            /* High value makes it pill-shaped */
+            padding-left: 24px !important;
+            /* Add side padding for better look */
+            padding-right: 24px !important;
+        }
+
+        /* Ensure the Button Group (Filters) allows rounding */
+        .btn-group>.btn:first-child {
+            border-top-left-radius: 50px !important;
+            border-bottom-left-radius: 50px !important;
+        }
+
+        .btn-group>.btn:last-child {
+            border-top-right-radius: 50px !important;
+            border-bottom-right-radius: 50px !important;
+        }
+
+        /* Add spacing between filter buttons if they are separate */
+        .btn-group .btn {
+            margin-right: 5px;
+            /* Tiny space between buttons */
+            border-radius: 50px !important;
+            /* Force individual rounding */
+        }
+
+        /* ========================================= */
+        /* FIX BUTTON HOVER VISIBILITY */
+        /* ========================================= */
+
+        /* Fix Button Hover State - Make it Visible */
+        .btn:hover,
+        .btn-group .btn:hover,
+        .btn-outline-secondary:hover {
+            background-color: var(--secondary-color, #A3B18A) !important;
+            /* Sage Green */
+            border-color: var(--secondary-color, #A3B18A) !important;
+            color: #FFFFFF !important;
+            /* Keep text White */
+            transform: translateY(-2px);
+            /* Slight lift effect */
+        }
+
+        /* Ensure Active Button stays Dark Green on hover */
+        .btn-primary:hover,
+        .btn-primary.active:hover {
+            background-color: #2d4532 !important;
+            /* Darker Olive Green */
+            border-color: #2d4532 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('menu') if session.get('user') else url_for('login') }}">
+                <i class="bi bi-shop"></i> Restaurant Ordering
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Theme Toggle Button -->
+                    <li class="nav-item">
+                        <button id="theme-toggle" class="btn btn-outline-light rounded-circle ms-2"
+                            title="Toggle Dark Mode"
+                            style="width: 40px; height: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                            <i id="theme-icon" class="bi bi-moon-fill"></i>
+                        </button>
+                    </li>
+                    {% if session.get('user') %}
+                    <!-- Logged in user navigation -->
+                    {% if session.user.role == 'customer' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('menu') }}">
+                            <i class="bi bi-house-door"></i> Menu
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('cart') }}">
+                            <i class="bi bi-cart"></i> Cart
+                            {% if session.get('cart') and session.cart|length > 0 %}
+                            <span class="badge bg-danger">{{ session.cart|length }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('my_orders') }}">
+                            <i class="bi bi-receipt"></i> My Orders
+                        </a>
+                    </li>
+                    {% elif session.user.role == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_menu') }}">
+                            <i class="bi bi-list-ul"></i> Manage Menu
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('menu') }}">
+                            <i class="bi bi-house-door"></i> Menu
+                        </a>
+                    </li>
+                    {% elif session.user.role == 'driver' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('driver_dashboard') }}">
+                            <i class="bi bi-truck"></i> Driver Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                            data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ session.user.name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% if session.user.role == 'customer' %}
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}">
+                                    <i class="bi bi-person-circle"></i> My Profile
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <!-- Not logged in -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Theme Toggle Script -->
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlElement = document.documentElement;
+
+        // 1. Check LocalStorage on load
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        htmlElement.setAttribute('data-theme', currentTheme);
+        updateIcon(currentTheme);
+
+        // 2. Toggle Function
+        toggleBtn.addEventListener('click', () => {
+            let theme = htmlElement.getAttribute('data-theme');
+            let newTheme = theme === 'light' ? 'dark' : 'light';
+
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
+
+        // 3. Update Icon (Moon vs Sun)
+        function updateIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.classList.remove('bi-moon-fill');
+                themeIcon.classList.add('bi-sun-fill');
+            } else {
+                themeIcon.classList.remove('bi-sun-fill');
+                themeIcon.classList.add('bi-moon-fill');
+            }
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

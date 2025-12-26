@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Driver Dashboard - Restaurant Ordering{% endblock %}
+
+{% block content %}
+<style>
+    /* ========================================= */
+    /* DRIVER DASHBOARD STYLING                  */
+    /* ========================================= */
+
+    /* 1. Card/Container Styling (Mobile Friendly) */
+    .driver-order-card {
+        background-color: #FFFFFF;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+        border-left: 5px solid var(--primary-color);
+        /* Green Accent */
+        padding: 20px;
+        transition: background-color 0.3s;
+    }
+
+    /* 2. Text Visibility (Address & Names) */
+    .driver-text-main {
+        font-weight: 700;
+        color: #1F2937;
+        font-size: 1.1rem;
+    }
+
+    .driver-text-sub {
+        color: #4B5563;
+        font-size: 0.95rem;
+    }
+
+    .driver-label {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        color: #6B7280;
+    }
+
+    /* 3. "Mark as Delivered" Button (Big & Easy to Tap) */
+    .btn-deliver {
+        background-color: #10B981 !important;
+        /* Success Green */
+        color: #FFFFFF !important;
+        /* FORCE WHITE TEXT */
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+        text-decoration: none !important;
+    }
+
+    .btn-deliver:hover {
+        background-color: #059669 !important;
+        color: #FFFFFF !important;
+        transform: translateY(-2px);
+    }
+
+    /* 4. Pick Up Button */
+    .btn-pickup {
+        background-color: #3A5A40 !important;
+        color: #FFFFFF !important;
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px rgba(58, 90, 64, 0.3);
+        text-decoration: none !important;
+    }
+
+    .btn-pickup:hover {
+        background-color: #2d4532 !important;
+        color: #FFFFFF !important;
+        transform: translateY(-2px);
+    }
+
+    /* ========================================= */
+    /* DARK MODE OVERRIDES (Critical)            */
+    /* ========================================= */
+    [data-theme="dark"] .driver-order-card {
+        background-color: #1F2937 !important;
+        /* Dark Card BG */
+        border-left-color: #10B981;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="dark"] .driver-text-main {
+        color: #F3F4F6 !important;
+    }
+
+    /* White Text */
+    [data-theme="dark"] .driver-text-sub {
+        color: #D1D5DB !important;
+    }
+
+    /* Light Grey */
+    [data-theme="dark"] .driver-label {
+        color: #9CA3AF !important;
+    }
+
+    /* Fix Table Rows if using a table layout instead of cards */
+    [data-theme="dark"] .table-hover tbody tr {
+        background-color: #1F2937 !important;
+        transition: background-color 0.3s;
+    }
+
+    [data-theme="dark"] .table-hover tbody tr:hover {
+        background-color: #374151 !important;
+    }
+
+    [data-theme="dark"] .table th,
+    [data-theme="dark"] .table td {
+        color: #F3F4F6 !important;
+        border-color: #374151 !important;
+    }
+
+    [data-theme="dark"] .table thead {
+        background-color: #111827 !important;
+    }
+
+    [data-theme="dark"] .table-light {
+        background-color: #111827 !important;
+        color: #F3F4F6 !important;
+    }
+
+    /* Force white text on action buttons in dark mode */
+    [data-theme="dark"] .btn-deliver,
+    [data-theme="dark"] .btn-pickup,
+    [data-theme="dark"] .btn-sm {
+        color: #FFFFFF !important;
+    }
+
+    /* ========================================= */
+    /* DRIVER TABLE STYLING                      */
+    /* ========================================= */
+
+    .table-driver {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        /* Spacing between rows */
+        margin-top: 20px;
+    }
+
+    /* 1. Green Header (Brand Identity) */
+    .table-driver thead th {
+        background-color: #3A5A40;
+        /* Brand Dark Green */
+        color: #FFFFFF;
+        padding: 15px;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .table-driver thead th:first-child {
+        border-top-left-radius: 10px;
+    }
+
+    .table-driver thead th:last-child {
+        border-top-right-radius: 10px;
+    }
+
+    /* 2. Row Styling (Light Mode Default) */
+    .table-driver tbody tr {
+        background-color: #FFFFFF;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+    }
+
+    .table-driver tbody tr:hover {
+        transform: scale(1.005);
+    }
+
+    .table-driver td {
+        padding: 15px;
+        vertical-align: middle;
+        border: none;
+        color: #333333;
+        font-weight: 500;
+    }
+
+    /* ========================================= */
+    /* CRITICAL: DARK MODE OVERRIDES             */
+    /* ========================================= */
+    /* Force dark background on BOTH rows AND cells */
+    [data-theme="dark"] .table-driver tbody tr,
+    [data-theme="dark"] .table-driver tbody td {
+        background-color: #1F2937 !important;
+        /* Dark Grey BG */
+        color: #F3F4F6 !important;
+        /* White Text */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="dark"] .table-driver tbody tr:hover,
+    [data-theme="dark"] .table-driver tbody tr:hover td {
+        background-color: #374151 !important;
+    }
+
+    /* Force white text on all content */
+    [data-theme="dark"] .table-driver td,
+    [data-theme="dark"] .table-driver td strong,
+    [data-theme="dark"] .table-driver td span {
+        color: #F3F4F6 !important;
+        /* White Text */
+    }
+
+    /* Fix the action buttons text color just in case */
+    .table-driver .btn-pickup,
+    .table-driver .btn-deliver {
+        color: #FFFFFF !important;
+        font-weight: bold;
+    }
+</style>
+<div class="row">
+    <div class="col-12">
+        <div class="mb-4">
+            <h1 class="display-5 fw-bold" style="color: var(--primary-color);">
+                <i class="bi bi-truck me-2"></i>Driver Dashboard
+            </h1>
+            <p class="lead text-muted mb-0">
+                Orders ready for pickup and delivery
+            </p>
+        </div>
+        <hr class="mb-5">
+
+        <div class="card">
+            <div class="card-body">
+                {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-driver">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Name</th>
+                                <th>Address</th>
+                                <th>Total Price</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td><strong>#{{ order.id }}</strong></td>
+                                <td><span class="driver-text-main">{{ order.customer_name }}</span></td>
+                                <td>
+                                    {% if order.address %}
+                                    <span class="driver-text-sub">{{ order.address }}</span>
+                                    {% else %}
+                                    <span class="text-muted">No address provided</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ "%.2f"|format(order.total) }} LE</td>
+                                <td>
+                                    {% if order.status == 'Ready' %}
+                                    <span class="badge bg-success">{{ order.status }}</span>
+                                    {% elif order.status == 'Out for Delivery' %}
+                                    <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.status == 'Ready' %}
+                                    <a href="{{ url_for('driver_update_status', order_id=order.id, new_status='Out for Delivery') }}"
+                                        class="btn-pickup">
+                                        <i class="bi bi-box-arrow-up me-2"></i> Pick Up
+                                    </a>
+                                    {% elif order.status == 'Out for Delivery' %}
+                                    <a href="{{ url_for('driver_update_status', order_id=order.id, new_status='Delivered') }}"
+                                        class="btn-deliver">
+                                        <i class="bi bi-check-circle me-2"></i> Mark Delivered
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3 text-muted">No orders available for delivery</h4>
+                    <p class="text-muted">Orders with status 'Ready' or 'Out for Delivery' will appear here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Auto-refresh every 5 seconds for real-time delivery order updates
+    setTimeout(function () {
+        location.reload();
+    }, 5000);
+</script>
+{% endblock %}
+{% endblock %}
