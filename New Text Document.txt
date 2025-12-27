@@ -1,6 +1,0 @@
-admin@admin.com
-admin 
-customer@test.com
-customer
-driver@test.com
-driver
