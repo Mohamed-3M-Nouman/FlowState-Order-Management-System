@@ -32,6 +32,20 @@ Developed using the **"Vibe Coding" methodology**, the project prioritizes fluid
 
 ---
 
+## ⚡ Vibe Coding & AI Workflow
+
+This project adopts a modern **Vibe Coding** methodology, focusing on high-level architectural flow while leveraging AI for rapid implementation.
+
+The development was orchestrated using **Integrafty**, utilizing a **Multi-Agent System** approach to ensure code quality and optimization:
+
+* **🤖 Claude 3.5 Sonnet:** Utilized for complex backend logic, architectural structuring, and refactoring (MVC Pattern enforcement).
+* **✨ Gemini 1.5 Pro:** Deployed for creative frontend solutions, documentation generation, and error debugging.
+* **🚀 Integrafty Platform:** Served as the central orchestration hub, enabling seamless context sharing between agents to maintain the "Flow State."
+
+> *This workflow allowed for a 100% focus on business logic and user experience, reducing boilerplate coding time by approx. 70%.*
+
+---
+
 ## 🏗 System Architecture
 
 The project follows the **Model-View-Controller (MVC)** architectural pattern to ensure code modularity and maintainability:
