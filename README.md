@@ -16,6 +16,7 @@
 - [About The Project](#-about-the-project)
 - [Vibe Coding & AI Workflow](#-vibe-coding--ai-workflow)
 - [System Architecture](#-system-architecture)
+- [Use Case Diagram](#-use-case-diagram)
 - [Technical Stack](#-technical-stack)
 - [Database Schema](#-database-schema)
 - [Key Features](#-key-features)
@@ -62,6 +63,59 @@ graph LR
     C -- Object --> B
     B -- Context --> E[Jinja2 Templates / View]
     E -- HTML Response --> A
+```
+
+---
+
+## 📍 Use Case Diagram
+
+The following diagram illustrates the interactions between the three main actors (Admin, Customer, Driver) and the system functionalities.
+
+```mermaid
+graph TB
+    subgraph Actors
+        C[👤 Customer]
+        A[👨‍🍳 Admin / Kitchen]
+        D[🚗 Driver]
+    end
+    
+    subgraph "FlowState Restaurant System"
+        subgraph "Customer Use Cases"
+            UC1[Register & Login]
+            UC2[Browse Menu & Cart]
+            UC3[Place Order]
+            UC4[Track Order Status]
+        end
+        
+        subgraph "Admin Use Cases"
+            UC5[Manage Menu CRUD]
+            UC6[View Incoming Orders]
+            UC7[Update Status<br/>Preparing/Ready]
+            UC8[Manage System Settings]
+        end
+        
+        subgraph "Driver Use Cases"
+            UC9[View 'Ready' Orders]
+            UC10[Accept Delivery]
+            UC11[Mark as Delivered]
+        end
+    end
+    
+    C --> UC1
+    C --> UC2
+    C --> UC3
+    C --> UC4
+    
+    A --> UC1
+    A --> UC5
+    A --> UC6
+    A --> UC7
+    A --> UC8
+    
+    D --> UC1
+    D --> UC9
+    D --> UC10
+    D --> UC11
 ```
 
 ---
