@@ -14,6 +14,7 @@
 
 ## 📋 Table of Contents
 - [About The Project](#-about-the-project)
+- [Vibe Coding & AI Workflow](#-vibe-coding--ai-workflow)
 - [System Architecture](#-system-architecture)
 - [Technical Stack](#-technical-stack)
 - [Database Schema](#-database-schema)
