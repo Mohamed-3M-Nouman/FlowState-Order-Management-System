@@ -62,11 +62,11 @@ graph LR
 
 ## ⚡ Vibe Coding & AI Workflow
 
-This project adopts a modern **Vibe Coding** methodology. The development was orchestrated using **Integrafty** with a **Multi-Agent System** approach:
+What sets this project apart is the development workflow. Instead of traditional setups, I utilized the new **Google Antigravity**, a next-generation IDE, to orchestrate a **Multi-Agent System**.
 
-* **🤖 Claude 3.5 Sonnet:** Backend logic, architectural structuring, and MVC enforcement.
-* **✨ Gemini 1.5 Pro:** Frontend creativity, documentation, and debugging.
-* **🚀 Integrafty:** Central orchestration hub to maintain the "Flow State."
+* **🤖 Claude 4.5 Sonnet:** Backend logic, architectural structuring, and MVC enforcement.
+* **✨ Gemini 3 Pro:** Frontend creativity, documentation, and debugging.
+* **🚀 Google Antigravity:** Central orchestration hub to maintain the "Flow State."
 
 > *This workflow allowed for a 100% focus on business logic, reducing boilerplate coding time by approx. 70%.*
 
@@ -101,7 +101,7 @@ graph TB
 
 **Clone the Repo:**
 ```bash
-git clone https://github.com/YOUR_USERNAME/FlowState-Order-Management-System.git
+git clone https://github.com/Mohamed-3M-Nouman/FlowState-Order-Management-System.git
 ```
 
 **Install Requirements:**
@@ -115,8 +115,10 @@ python app.py
 ```
 
 **Login Credentials:**
-- Admin: `admin@app.com` / `admin123`
-- Driver: `driver@app.com` / `driver123`
+- Admin: `admin@app.com` / `admin`
+- Driver: `driver@app.com` / `driver`
+- Customer: `customer@app.com` / `customer`
+
 
 ---
 
