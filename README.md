@@ -7,6 +7,8 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Flask](https://img.shields.io/badge/Framework-Flask-lightgrey)
 
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-View_Post-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/posts/eng3mno3man_softwareengineering-python-flask-activity-7410563855921315840-O5ZJ?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEgRbeQBb5i5jTaXrI-TI9EszXce1gH8YZE)
+
 <p align="center">
   <img src="screenshots/Menu.png" alt="System Overview" width="100%">
 </p>
